@@ -1,7 +1,6 @@
 package ssh
 
 import (
-	"go-ecm/pkg/log"
 	"os"
 )
 
@@ -40,7 +39,6 @@ func (c *Client) RunWithBindStd(cmd string) error {
 func (c *Client) Output(cmd string) ([]byte, error) {
 	session, err := c.client.NewSession()
 	if err != nil {
-		log.Info(err.Error())
 		return nil, err
 	}
 	defer session.Close()

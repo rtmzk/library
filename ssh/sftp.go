@@ -3,7 +3,7 @@ package ssh
 import (
 	"bytes"
 	"github.com/pkg/sftp"
-	"go-ecm/utils"
+	"github.com/zhuihua/library/utils"
 	"io"
 	"os"
 	"path/filepath"

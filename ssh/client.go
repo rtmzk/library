@@ -2,8 +2,7 @@ package ssh
 
 import (
 	"fmt"
-	"go-ecm/pkg/log"
-	"go-ecm/utils"
+	"github.com/zhuihua/library/utils"
 	"golang.org/x/crypto/ssh"
 	"io/ioutil"
 	"net"
@@ -28,19 +27,10 @@ type Client struct {
 
 type Option func(c *Client)
 
-func DefaultSSHClient(h string, port string) *Client {
-	client, err := NewClient("root", WithAuthByKey(utils.UserHome()+"/.ssh/id_rsa"), WithHost(h), WithPort(port))
-	if err != nil {
-		log.Error(err.Error())
-		return nil
-	}
-
-	return client
-}
-
-func NewClient(username string, options ...Option) (*Client, error) {
+func NewClient(username string, port int, options ...Option) (*Client, error) {
 	c := &Client{
 		Username: username,
+		Port: port,
 	}
 
 	for _, o := range options {
@@ -73,10 +63,9 @@ func WithHost(host string) Option {
 	}
 }
 
-func WithPort(port string) Option {
-	p , _ :=  strconv.Atoi(port)
+func WithPort(port int) Option {
 	return func(c *Client) {
-		c.Port = p
+		c.Port = port
 	}
 }
 
@@ -104,7 +93,6 @@ func (c *Client) buildClient() error {
 			return keyAuth(c.KeyFile)
 		}()
 	default:
-		log.Error("Unknow sshkey auth method.")
 		return fmt.Errorf("Unknow sshkey auth method")
 	}
 
@@ -122,7 +110,6 @@ func (c *Client) buildClient() error {
 	}
 	client, err := ssh.Dial("tcp", net.JoinHostPort(c.Host, strconv.Itoa(c.Port)), cliconf)
 	if err != nil {
-		log.Errorf("failed to dail %s:%d by sshkey protocol.", c.Host, c.Port)
 		return err
 	}
 
@@ -141,7 +128,6 @@ func keyAuth(kf string) ssh.AuthMethod {
 	}
 	key, err := ioutil.ReadFile(kf)
 	if err != nil {
-		log.Errorf("can not read key file by path: %s", kf)
 		return nil
 	}
 
